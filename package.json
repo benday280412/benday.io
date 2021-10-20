@@ -1,28 +1,50 @@
 {
+  "name": "gatsby-starter-netlify-cms",
+  "description": "Example Gatsby, and Netlify CMS project",
+  "version": "1.1.3",
+  "author": "Austin Green",
+  "dependencies": {
+    "bulma": "^0.9.0",
+    "gatsby": "^2.20.35",
+    "gatsby-image": "^2.3.5",
+    "gatsby-plugin-netlify": "^2.2.4",
+    "gatsby-plugin-netlify-cms": "^4.2.5",
+    "gatsby-plugin-purgecss": "^5.0.0",
+    "gatsby-plugin-react-helmet": "^3.2.5",
+    "gatsby-plugin-sass": "^2.2.4",
+    "gatsby-plugin-sharp": "^2.5.7",
+    "gatsby-remark-copy-linked-files": "^2.2.4",
+    "gatsby-remark-images": "^3.2.6",
+    "gatsby-remark-relative-images": "^0.3.0",
+    "gatsby-source-filesystem": "^2.2.5",
+    "gatsby-transformer-remark": "^2.7.5",
+    "gatsby-transformer-sharp": "^2.4.7",
+    "lodash": "^4.17.15",
+    "lodash-webpack-plugin": "^0.11.4",
+    "netlify-cms-app": "^2.15.53",
+    "netlify-cms-media-library-cloudinary": "^1.3.10",
+    "netlify-cms-media-library-uploadcare": "^0.5.10",
+    "node-sass": "^4.14.0",
+    "prop-types": "^15.6.0",
+    "react": "^16.8.4",
+    "react-dom": "^16.8.4",
+    "react-helmet": "^6.0.0",
+    "uuid": "^7.0.0"
+  },
+  "keywords": [
+    "gatsby"
+  ],
+  "license": "MIT",
+  "main": "n/a",
   "scripts": {
-    "start": "npm-run-all --parallel css eleventy",
-    "eleventy": "eleventy --serve",
-    "debug": "set DEBUG=* & eleventy",
-    "css": "postcss src/static/css/tailwind.css --o _tmp/static/css/style.css --watch",
-    "build": "cross-env NODE_ENV=production eleventy && cross-env NODE_ENV=production postcss src/static/css/tailwind.css --o _site/static/css/style.css"
+    "clean": "gatsby clean",
+    "start": "npm run develop",
+    "build": "npm run clean && gatsby build",
+    "develop": "npm run clean && gatsby develop",
+    "format": "prettier --trailing-comma es5 --no-semi --single-quote --write \"{gatsby-*.js,src/**/*.js}\"",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "devDependencies": {
-    "@11ty/eleventy": "^0.11.0",
-    "@11ty/eleventy-plugin-syntaxhighlight": "^3.0.1",
-    "@tailwindcss/typography": "^0.3.1",
-    "alpinejs": "^2.6.0",
-    "cross-env": "^7.0.2",
-    "cssnano": "^4.1.10",
-    "html-minifier": "^4.0.0",
-    "js-yaml": "^3.14.0",
-    "luxon": "^1.25.0",
-    "npm-run-all": "^4.1.5",
-    "postcss-cli": "^8.3.1",
-    "prismjs": "^1.21.0",
-    "tailwindcss": "^2.0.2"
-  },
-  "dependencies": {
-    "autoprefixer": "^10.1.0",
-    "postcss": "^8.2.1"
+    "prettier": "^2.0.5"
   }
 }
