@@ -36,7 +36,10 @@ const AboutPage = ({ data }) => {
   const { markdownRemark: post } = data;
 
   return (
-    <Layout>
+    <Layout
+      title={post.frontmatter.title}
+      path={"/about"}
+    >
       <AboutPageTemplate
         contentComponent={HTMLContent}
         title={post.frontmatter.title}

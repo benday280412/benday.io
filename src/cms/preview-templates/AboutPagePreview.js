@@ -3,13 +3,10 @@ import PropTypes from 'prop-types'
 import { AboutPageTemplate } from '../../templates/about-page'
 
 const AboutPagePreview = ({ entry, widgetFor }) => (
-  <div>
-  <span>This is a test</span>
   <AboutPageTemplate
     title={entry.getIn(['data', 'title'])}
     content={widgetFor('body')}
   />
-  </div>
 )
 
 AboutPagePreview.propTypes = {

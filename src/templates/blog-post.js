@@ -59,7 +59,12 @@ const BlogPost = ({ data }) => {
   const { markdownRemark: post } = data;
 
   return (
-    <Layout>
+    <Layout 
+      title={post.frontmatter.title}
+      description={post.frontmatter.description}
+      imageSrc={post.frontmatter.featuredimage.childImageSharp.gatsbyImageData.images.fallback.src}
+      path={post.fields.slug}
+    >
       <BlogPostTemplate
         content={post.html}
         contentComponent={HTMLContent}
@@ -98,6 +103,18 @@ export const pageQuery = graphql`
         title
         description
         tags
+        featuredimage {
+          childImageSharp {
+            gatsbyImageData(
+              width: 120
+              quality: 100
+              layout: CONSTRAINED
+            )
+          }
+        }
+      }
+      fields {
+        slug
       }
     }
   }
