@@ -1,135 +1,73 @@
-# Gatsby + Netlify CMS Starter
+# Contentful Gatsby Starter Blog
 
-[![Netlify Status](https://api.netlify.com/api/v1/badges/b654c94e-08a6-4b79-b443-7837581b1d8d/deploy-status)](https://app.netlify.com/sites/gatsby-starter-netlify-cms-ci/deploys)
+Create a [Gatsby](http://gatsbyjs.com/) blog powered by [Contentful](https://www.contentful.com).
 
-**Note:** This starter uses [Gatsby v4](https://www.gatsbyjs.com/gatsby-4/).
+![An article page of the starter blog](./screenshot.png "An article page of the starter blog")
 
-This repo contains an example business website that is built with [Gatsby](https://www.gatsbyjs.org/), and [Netlify CMS](https://www.netlifycms.org): **[Demo Link](https://gatsby-netlify-cms.netlify.com/)**.
+Static sites are scalable, secure and have very little required maintenance. They come with a drawback though. Not everybody feels good editing files, building a project and uploading it somewhere. This is where Contentful comes into play.
 
-It follows the [JAMstack architecture](https://jamstack.org) by using Git as a single source of truth, and [Netlify](https://www.netlify.com) for continuous deployment, and CDN distribution.
+With Contentful and Gatsby you can connect your favorite static site generator with an API that provides an easy to use interface for people writing content and automate the publishing using services like [Travis CI](https://travis-ci.org/) or [Netlify](https://www.netlify.com/).
 
 ## Features
 
-- A simple landing page with blog functionality built with Netlify CMS
-- Editable Pages: Landing, About, Product, Blog-Collection and Contact page with Netlify Form support
-- Create Blog posts from Netlify CMS
-- Tags: Separate page for posts under each tag
-- Basic directory organization
-- Uses Bulma for styling, but size is reduced by `gatsy-plugin-purgecss`
-- Blazing fast loading times thanks to pre-rendered HTML and automatic chunk loading of JS files
-- Uses `gatsby-plugin-image` with Netlify-CMS preview support
-- Separate components for everything
-- Netlify deploy configuration
-- Netlify function support, see `netlify/functions` folder
-- Perfect score on Lighthouse for SEO, Accessibility and Performance (wip:PWA)
-- ..and more
+- Simple content model and structure. Easy to adjust to your needs.
+- Use the [synchronization feature](https://www.contentful.com/developers/docs/references/content-delivery-api/#/reference/synchronization) of our [Delivery API](https://www.contentful.com/developers/docs/references/content-delivery-api/).
+- Responsive/adaptive images via [gatsby-plugin-image](https://www.gatsbyjs.org/packages/gatsby-plugin-image/) and our [Images API](https://www.contentful.com/developers/docs/references/content-delivery-api/#/reference/synchronization/initial-synchronization-of-entries-of-a-specific-content-type).
 
-## Prerequisites
+## Getting started
 
-- Minimal Node.js version 14.15.0
-- [Gatsby CLI](https://www.gatsbyjs.com/docs/reference/gatsby-cli/)
-- [Netlify CLI](https://github.com/netlify/cli)
+See our [official Contentful getting started guide](https://www.contentful.com/developers/docs/tutorials/general/get-started/).
 
-## Getting Started (Recommended)
-
-Netlify CMS can run in any frontend web environment, but the quickest way to try it out is by running it on a pre-configured starter site with Netlify. The example here is the Kaldi coffee company template (adapted from [One Click Hugo CMS](https://github.com/netlify-templates/one-click-hugo-cms)). Use the button below to build and deploy your own copy of the repository:
-
-<a href="https://app.netlify.com/start/deploy?repository=https://github.com/netlify-templates/gatsby-starter-netlify-cms&amp;stack=cms"><img src="https://www.netlify.com/img/deploy/button.svg" alt="Deploy to Netlify"></a>
-
-After clicking that button, you’ll authenticate with GitHub and choose a repository name. Netlify will then automatically create a repository in your GitHub account with a copy of the files from the template. Next, it will build and deploy the new site on Netlify, bringing you to the site dashboard when the build is complete. Next, you’ll need to set up Netlify’s Identity service to authorize users to log in to the CMS.
-
-### Access Locally
-
-Pulldown a local copy of the Github repository Netlify created for you, with the name you specified in the previous step
+### Get the source code and install dependencies.
 
 ```
-$ git clone https://github.com/[GITHUB_USERNAME]/[REPO_NAME].git
-$ cd [REPO_NAME]
-$ yarn
-$ netlify dev # or ntl dev
+$ git clone https://github.com/contentful/starter-gatsby-blog.git
+$ npm install
 ```
 
-This uses [Netlify Dev](https://www.netlify.com/products/dev/?utm_source=blog&utm_medium=netlifycms&utm_campaign=devex) CLI feature to serve any functions you have in the `netlify/functions` folder.
+Or use Gatsby Cloud
 
-To test the CMS locally, you'll need to run a production build of the site:
+Use Deploy Now to get started in [Gatsby Cloud](https://gatsbyjs.com/products/cloud):
 
-```
-$ npm run build
-$ netlify dev # or ntl dev
-```
+[<img src="https://www.gatsbyjs.com/deploynow.png" alt="Deploy to Gatsby Cloud">](https://www.gatsbyjs.com/dashboard/deploynow?url=https://github.com/contentful/starter-gatsby-blog)
 
-### Media Libraries (installed, but optional)
+If you use Deploy Now, Gatsby Cloud will run the `gatsby-provision` script on your behalf, if you choose, after you Quick Connected to your empty Contentful Space. That script will add the necessary content models and content to support this site.
 
-Media Libraries have been included in this starter as a default. If you are not planning to use `Uploadcare` or `Cloudinary` in your project, you **can** remove them from module import and registration in `src/cms/cms.js`. Here is an example of the lines to comment or remove them your project.
 
-```javascript
-import CMS from "netlify-cms-app";
-// import uploadcare from 'netlify-cms-media-library-uploadcare'
-// import cloudinary from 'netlify-cms-media-library-cloudinary'
-
-import AboutPagePreview from "./preview-templates/AboutPagePreview";
-import BlogPostPreview from "./preview-templates/BlogPostPreview";
-import ProductPagePreview from "./preview-templates/ProductPagePreview";
-import IndexPagePreview from "./preview-templates/IndexPagePreview";
-
-// CMS.registerMediaLibrary(uploadcare);
-// CMS.registerMediaLibrary(cloudinary);
-
-CMS.registerPreviewTemplate("index", IndexPagePreview);
-CMS.registerPreviewTemplate("about", AboutPagePreview);
-CMS.registerPreviewTemplate("products", ProductPagePreview);
-CMS.registerPreviewTemplate("blog", BlogPostPreview);
-```
-
-Note: Don't forget to also remove them from `package.json` and `yarn.lock` / `package-lock.json` using `yarn` or `npm`. During the build netlify-cms-app will bundle the media libraries as well, having them removed will save you build time.
-Example:
+Or use the [Gatsby CLI](https://www.npmjs.com/package/gatsby-cli).
 
 ```
-yarn remove netlify-cms-media-library-uploadcare
+$ gatsby new contentful-starter-blog https://github.com/contentful/starter-gatsby-blog/
 ```
 
-OR
+### Set up of the needed content model and create a configuration file
 
-```
-yarn remove netlify-cms-media-library-cloudinary
-```
+This project comes with a Contentful setup command `npm run setup`.
 
-## Getting Started (Without Netlify)
+This command will ask you for a space ID, and access tokens for the Contentful Management and Delivery API and then import the needed content model into the space you define and write a config file (`./.contentful.json`).
 
-```
-$ gatsby new [SITE_DIRECTORY_NAME] https://github.com/netlify-templates/gatsby-starter-netlify-cms/
-$ cd [SITE_DIRECTORY_NAME]
-$ npm run build
-$ npm run start
-```
+`npm run setup` automates that for you but if you want to do it yourself rename `.contentful.json.sample` to `.contentful.json` and add your configuration in this file.
 
-### Setting up the CMS
+## Crucial Commands
 
-Follow the [Netlify CMS Quick Start Guide](https://www.netlifycms.org/docs/quick-start/#authentication) to set up authentication, and hosting for production.
+### `npm run dev`
 
-If you want use Netlify CMS locally, run the site in one terminal with `npm run start` and in another
-Terminal you can use `npx netlify-cms-proxy-server` which proxy requests so you'll be automatically logged
-in as a user on [http:localhost:3000/admin](http:localhost:3000/admin).
+Run the project locally with live reload in development mode.
 
-## Debugging
+### `npm run build`
 
-Windows users, who aren't using [WSL](https://docs.microsoft.com/en-us/windows/wsl/about), might encounter `node-gyp` errors when trying to npm install.
-To resolve, make sure that you have both Python 2.7 and the Visual C++ build environment installed.
+Run a production build into `./public`. The result is ready to be put on any static hosting you prefer.
 
-```
-npm config set python python2.7
-npm install --global --production windows-build-tools
-```
+### `npm run serve`
 
-[Full details here](https://www.npmjs.com/package/node-gyp "NPM node-gyp page").
+Spin up a production-ready server with your blog. Don't forget to build your page beforehand.
 
-MacOS and WSL users who might also encounter some errors, check [node-gyp](https://github.com/nodejs/node-gyp) for more info. We recommend using the latest stable node version.
+## Deployment
 
-## Purgecss
+See the [official Contentful getting started guide](https://www.contentful.com/developers/docs/tutorials/general/get-started/).
 
-This plugin uses [gatsby-plugin-purgecss](https://www.gatsbyjs.org/packages/gatsby-plugin-purgecss/) and [bulma](https://bulma.io/). The bulma builds are usually ~170K but reduced 90% by purgecss.
+## Contribution
 
-# CONTRIBUTING
+Feel free to open pull requests to fix bugs. If you want to add features, please have a look at the [original version](https://github.com/contentful-userland/gatsby-contentful-starter). It is always open to contributions and pull requests.
 
-Contributions are always welcome, no matter how large or small. Before contributing,
-please read the [code of conduct](CODE_OF_CONDUCT.md).
+You can learn more about how Contentful userland is organized by visiting [our about repository](https://github.com/contentful-userland/about).

@@ -1,121 +1,131 @@
-import React from "react";
-import PropTypes from "prop-types";
-import { kebabCase } from "lodash";
-import { Helmet } from "react-helmet";
-import { graphql, Link } from "gatsby";
-import Layout from "../components/Layout";
-import Content, { HTMLContent } from "../components/Content";
+import React from 'react'
+import { Link, graphql } from 'gatsby'
+import get from 'lodash/get'
+import { renderRichText } from 'gatsby-source-contentful/rich-text'
+import { documentToPlainTextString } from '@contentful/rich-text-plain-text-renderer'
+import { BLOCKS } from '@contentful/rich-text-types'
+import { GatsbyImage, getImage } from 'gatsby-plugin-image'
+import readingTime from 'reading-time'
 
-// eslint-disable-next-line
-export const BlogPostTemplate = ({
-  content,
-  contentComponent,
-  description,
-  tags,
-  title,
-  helmet,
-}) => {
-  const PostContent = contentComponent || Content;
+import Seo from '../components/seo'
+import Layout from '../components/layout'
+import Hero from '../components/hero'
+import Tags from '../components/tags'
+import * as styles from './blog-post.module.css'
 
-  return (
-    <section className="section">
-      {helmet || ""}
-      <div className="container content">
-        <div className="columns">
-          <div className="column is-10 is-offset-1">
-            <h1 className="title is-size-2 has-text-weight-bold is-bold-light">
-              {title}
-            </h1>
-            <p>{description}</p>
-            <PostContent content={content} />
-            {tags && tags.length ? (
-              <div style={{ marginTop: `4rem` }}>
-                <h4>Tags</h4>
-                <ul className="taglist">
-                  {tags.map((tag) => (
-                    <li key={tag + `tag`}>
-                      <Link to={`/tags/${kebabCase(tag)}/`}>{tag}</Link>
+class BlogPostTemplate extends React.Component {
+  render() {
+    const post = get(this.props, 'data.contentfulBlogPost')
+    const previous = get(this.props, 'data.previous')
+    const next = get(this.props, 'data.next')
+    const plainTextDescription = documentToPlainTextString(
+      JSON.parse(post.description.raw)
+    )
+    const plainTextBody = documentToPlainTextString(JSON.parse(post.body.raw))
+    const { minutes: timeToRead } = readingTime(plainTextBody)
+    
+    const options = {
+      renderNode: {
+        [BLOCKS.EMBEDDED_ASSET]: (node) => {
+        const { gatsbyImage, description } = node.data.target
+        return (
+           <GatsbyImage
+              image={getImage(gatsbyImage)}
+              alt={description}
+           />
+         )
+        },
+      },
+    };
+
+    return (
+      <Layout location={this.props.location}>
+        <Seo
+          title={post.title}
+          description={plainTextDescription}
+          image={`http:${post.heroImage.resize.src}`}
+        />
+        <Hero
+          image={post.heroImage?.gatsbyImage}
+          title={post.title}
+          content={post.description}
+        />
+        <div className={styles.container}>
+          <span className={styles.meta}>
+            {post.author?.name} &middot;{' '}
+            <time dateTime={post.rawDate}>{post.publishDate}</time> –{' '}
+            {timeToRead} minute read
+          </span>
+          <div className={styles.article}>
+            <div className={styles.body}>
+              {post.body?.raw && renderRichText(post.body, options)}
+            </div>
+            <Tags tags={post.tags} />
+            {(previous || next) && (
+              <nav>
+                <ul className={styles.articleNavigation}>
+                  {previous && (
+                    <li>
+                      <Link to={`/blog/${previous.slug}`} rel="prev">
+                        ← {previous.title}
+                      </Link>
                     </li>
-                  ))}
+                  )}
+                  {next && (
+                    <li>
+                      <Link to={`/blog/${next.slug}`} rel="next">
+                        {next.title} →
+                      </Link>
+                    </li>
+                  )}
                 </ul>
-              </div>
-            ) : null}
+              </nav>
+            )}
           </div>
         </div>
-      </div>
-    </section>
-  );
-};
+      </Layout>
+    )
+  }
+}
 
-BlogPostTemplate.propTypes = {
-  content: PropTypes.node.isRequired,
-  contentComponent: PropTypes.func,
-  description: PropTypes.string,
-  title: PropTypes.string,
-  helmet: PropTypes.object,
-};
-
-const BlogPost = ({ data }) => {
-  const { markdownRemark: post } = data;
-
-  return (
-    <Layout 
-      title={post.frontmatter.title}
-      description={post.frontmatter.description}
-      imageSrc={post.frontmatter.featuredimage.childImageSharp.gatsbyImageData.images.fallback.src}
-      path={post.fields.slug}
-    >
-      <BlogPostTemplate
-        content={post.html}
-        contentComponent={HTMLContent}
-        description={post.frontmatter.description}
-        helmet={
-          <Helmet titleTemplate="%s | Blog">
-            <title>{`${post.frontmatter.title}`}</title>
-            <meta
-              name="description"
-              content={`${post.frontmatter.description}`}
-            />
-          </Helmet>
-        }
-        tags={post.frontmatter.tags}
-        title={post.frontmatter.title}
-      />
-    </Layout>
-  );
-};
-
-BlogPost.propTypes = {
-  data: PropTypes.shape({
-    markdownRemark: PropTypes.object,
-  }),
-};
-
-export default BlogPost;
+export default BlogPostTemplate
 
 export const pageQuery = graphql`
-  query BlogPostByID($id: String!) {
-    markdownRemark(id: { eq: $id }) {
-      id
-      html
-      frontmatter {
-        date(formatString: "MMMM DD, YYYY")
-        title
-        description
-        tags
-        featuredimage {
-          childImageSharp {
-            gatsbyImageData(
-              width: 120
-              quality: 100
-              layout: CONSTRAINED
-            )
-          }
+  query BlogPostBySlug(
+    $slug: String!
+    $previousPostSlug: String
+    $nextPostSlug: String
+  ) {
+    contentfulBlogPost(slug: { eq: $slug }) {
+      slug
+      title
+      author {
+        name
+      }
+      publishDate(formatString: "MMMM Do, YYYY")
+      rawDate: publishDate
+      heroImage {
+        gatsbyImage(layout: FULL_WIDTH, placeholder: BLURRED, width: 1280)
+        resize(height: 630, width: 1200) {
+          src
         }
       }
-      fields {
-        slug
+      body {
+        raw
+        
+      }
+      tags
+      description {
+        raw
       }
     }
+    previous: contentfulBlogPost(slug: { eq: $previousPostSlug }) {
+      slug
+      title
+    }
+    next: contentfulBlogPost(slug: { eq: $nextPostSlug }) {
+      slug
+      title
+    }
   }
-`;
+`

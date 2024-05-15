@@ -1,87 +1,53 @@
-const _ = require('lodash')
 const path = require('path')
-const { createFilePath } = require('gatsby-source-filesystem')
-const { fmImagesToRelative } = require('gatsby-remark-relative-images')
 
-exports.createPages = ({ actions, graphql }) => {
+exports.createPages = async ({ graphql, actions, reporter }) => {
   const { createPage } = actions
 
-  return graphql(`
-    {
-      allMarkdownRemark(limit: 1000) {
-        edges {
-          node {
-            id
-            fields {
-              slug
-            }
-            frontmatter {
-              tags
-              templateKey
-            }
+  // Define a template for blog post
+  const blogPost = path.resolve('./src/templates/blog-post.js')
+
+  const result = await graphql(
+    `
+      {
+        allContentfulBlogPost {
+          nodes {
+            title
+            slug
           }
         }
       }
-    }
-  `).then((result) => {
-    if (result.errors) {
-      result.errors.forEach((e) => console.error(e.toString()))
-      return Promise.reject(result.errors)
-    }
+    `
+  )
 
-    const posts = result.data.allMarkdownRemark.edges
+  if (result.errors) {
+    reporter.panicOnBuild(
+      `There was an error loading your Contentful posts`,
+      result.errors
+    )
+    return
+  }
 
-    posts.forEach((edge) => {
-      const id = edge.node.id
-      createPage({
-        path: edge.node.fields.slug,
-        tags: edge.node.frontmatter.tags,
-        component: path.resolve(
-          `src/templates/${String(edge.node.frontmatter.templateKey)}.js`
-        ),
-        // additional data can be passed via context
-        context: {
-          id,
-        },
-      })
-    })
+  const posts = result.data.allContentfulBlogPost.nodes
 
-    // Tag pages:
-    let tags = []
-    // Iterate through each post, putting all found tags into `tags`
-    posts.forEach((edge) => {
-      if (_.get(edge, `node.frontmatter.tags`)) {
-        tags = tags.concat(edge.node.frontmatter.tags)
-      }
-    })
-    // Eliminate duplicate tags
-    tags = _.uniq(tags)
+  // Create blog posts pages
+  // But only if there's at least one blog post found in Contentful
+  // `context` is available in the template as a prop and as a variable in GraphQL
 
-    // Make tag pages
-    tags.forEach((tag) => {
-      const tagPath = `/tags/${_.kebabCase(tag)}/`
+  if (posts.length > 0) {
+    posts.forEach((post, index) => {
+      const previousPostSlug = index === 0 ? null : posts[index - 1].slug
+      const nextPostSlug =
+        index === posts.length - 1 ? null : posts[index + 1].slug
 
       createPage({
-        path: tagPath,
-        component: path.resolve(`src/templates/tags.js`),
+        path: `/blog/${post.slug}/`,
+        component: blogPost,
         context: {
-          tag,
+          slug: post.slug,
+          previousPostSlug,
+          nextPostSlug,
         },
       })
-    })
-  })
-}
-
-exports.onCreateNode = ({ node, actions, getNode }) => {
-  const { createNodeField } = actions
-  fmImagesToRelative(node) // convert image paths for gatsby images
-
-  if (node.internal.type === `MarkdownRemark`) {
-    const value = createFilePath({ node, getNode })
-    createNodeField({
-      name: `slug`,
-      node,
-      value,
     })
   }
 }
